@@ -13,6 +13,10 @@ RUN npm install
 # Copy project files
 COPY . .
 
+# Add environment variables
+ARG FIREBASE_PRIVATE_KEY
+ENV FIREBASE_PRIVATE_KEY=$FIREBASE_PRIVATE_KEY
+
 # Build the Next.js application
 RUN npm run build
 
