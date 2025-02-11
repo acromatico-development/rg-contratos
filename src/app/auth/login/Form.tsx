@@ -30,19 +30,23 @@ const LoginForm = () => {
         .min(6, 'La contraseña debe tener al menos 6 caracteres')
         .required('La contraseña es requerida'),
     }),
-    onSubmit: async (values, { router }) => {
-      const response = await login(values.email, values.password);
+    onSubmit: async ({ email, password }, { router }) => {
+      const {
+        status,
+        data,
+        message
+      } = await login(email, password);
 
-      if (response.status === 'error') {
-        showNotification({ message: response.message, type: 'error' });
+      if (status === 'error') {
+        showNotification({ message, type: 'error' });
         return;
       }
 
-      if (response.data) {
-        const userData = { data: response.data };
+      if (data) {
+        const userData = { data };
         localStorage.setItem('user', JSON.stringify(userData));
         document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=86400`;
-        setUser(response.data);
+        setUser(data);
         showNotification({ message: 'Inicio de sesión exitoso', type: 'success' });
         router.push('/');
       }

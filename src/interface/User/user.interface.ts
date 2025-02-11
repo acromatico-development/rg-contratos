@@ -10,6 +10,8 @@ export interface IUser {
     //ClausesId?: IClause[];
     UID: string;
     Role: EUserRole;
+    Identifier: string;
+    IsActive: boolean;
     CreatedAt: Date;
     UpdatedAt: Date;
 }

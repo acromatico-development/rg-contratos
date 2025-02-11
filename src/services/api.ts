@@ -10,15 +10,4 @@ const api = axios.create({
   }
 });
 
-api.interceptors.request.use((config) => {
-  const userStr = localStorage.getItem("user");
-  if (userStr) {
-    const user = JSON.parse(userStr);
-    if (user.data.token) {
-      config.headers.Authorization = `Bearer ${user.data.token}`;
-    }
-  }
-  return config;
-});
-
 export default api;

@@ -39,7 +39,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                     setUser(userData.data);
                 }
             } catch (error) {
-                console.error('Error checking auth:', error);
+                console.error('Error checking authentication:', error);
                 setUser(null);
                 localStorage.removeItem('user');
             } finally {

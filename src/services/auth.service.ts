@@ -4,16 +4,11 @@ import { IContractsResponse, INocoDBResponse, IUser } from '@interface';
 
 const route = "/mzoxixfs5ojoc4p/records";
 
-interface IUserWithToken extends IUser {
-    token?: string;
-}
-
-export const login = async (email: string, password: string): Promise<IContractsResponse<IUserWithToken>> => {
+export const login = async (email: string, password: string): Promise<IContractsResponse<IUser>> => {
     try {
         const { data } = await api.get<INocoDBResponse<IUser[]>>(
             `${route}?where=(Email,eq,${encodeURIComponent(email)})`
         );
-
         if (!data.list || data.list.length === 0) {
             throw new Error('Credenciales inválidas');
         }
