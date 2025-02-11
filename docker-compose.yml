@@ -5,11 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+        - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+        - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
     ports:
       - "3000:3000"
-    env_file:
-      - .env
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
+    environment:
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
+      - FIREBASE_PRIVATE_KEY=${FIREBASE_PRIVATE_KEY}
+      - NEXT_PUBLIC_NOCODB_BACKEND_URL=${NEXT_PUBLIC_NOCODB_BACKEND_URL}
+      - NEXT_PUBLIC_NOCODB_TOKEN=${NEXT_PUBLIC_NOCODB_TOKEN}
+      - NEXT_PUBLIC_JWT_SECRET=${NEXT_PUBLIC_JWT_SECRET}
