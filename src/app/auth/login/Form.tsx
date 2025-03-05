@@ -6,12 +6,27 @@ import { Input, Button, Form } from '@components';
 import { login } from '@services';
 import { useAuth } from '@context/AuthContext';
 import { useForm, useNotification } from '@hooks';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
 interface LoginValues {
   email: string;
   password: string;
   form?: string;
 }
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_Abo_79gSh_FuXOwQ26CSdFPA_WKOlRA",
+  authDomain: "rg-partners.firebaseapp.com",
+  databaseURL: "https://rg-partners.firebaseio.com",
+  projectId: "rg-partners",
+  storageBucket: "rg-partners.appspot.com",
+  messagingSenderId: "315198951927",
+  appId: "1:315198951927:web:59df5a6f4d625a298e1ef2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
 const LoginForm = () => {
   const { setUser } = useAuth();
@@ -31,25 +46,17 @@ const LoginForm = () => {
         .required('La contraseña es requerida'),
     }),
     onSubmit: async ({ email, password }, { router }) => {
-      const {
-        status,
-        data,
-        message
-      } = await login(email, password);
+      
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const idToken = await userCredential.user?.getIdToken();
+        console.log(idToken);
+      } catch (error) {
+          showNotification({ message: error.message, type: 'error' });
+          return;
+        }
 
-      if (status === 'error') {
-        showNotification({ message, type: 'error' });
-        return;
-      }
-
-      if (data) {
-        const userData = { data };
-        localStorage.setItem('user', JSON.stringify(userData));
-        document.cookie = `user=${JSON.stringify(userData)}; path=/; max-age=86400`;
-        setUser(data);
-        showNotification({ message: 'Inicio de sesión exitoso', type: 'success' });
-        router.push('/');
-      }
+      
     },
   });
 
