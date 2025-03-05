@@ -24,7 +24,7 @@ export async function GET(request: Request) {
                     emailVerified: user.emailVerified,
                     photoURL: user.photoURL || null,
                     phoneNumber: user.phoneNumber || null,
-                    disabled: user.disabled
+                    disabled: user.disabled,
                 }))
                 allUsers = [...allUsers, ...mappedUsers]
                 nextPageToken = result.pageToken

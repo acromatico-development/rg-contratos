@@ -1,24 +1,47 @@
 import api from '../api';
-import { IContractsResponse, INocoDBResponseId, INocoDBResponse, IUser } from '@interface';
+import { IUser, IUserDTO, IAppResponse, INocoDBResponse, INocoDBResponseId } from '@interface';
 
 const NOCODB_TABLE_NAME = '/mzoxixfs5ojoc4p/records'
 
-export const createUserNocodb = async (userData: {
-    uid: string
-    email: string
-    displayName?: string
-    identifier: string
-    password: string
-    role: 'ADMIN' | 'USER'
-}): Promise<IContractsResponse<IUser>> => {
+export const getNextUserIdentifier = async (): Promise<IAppResponse<string>> => {
+    try {
+        const { data } = await api.get<INocoDBResponse<IUser[]>>(`${NOCODB_TABLE_NAME}`, {
+            params: {
+                sort: '-Identifier',
+                limit: 1
+            }
+        });
+
+        const lastIdentifier = data.list?.[0]?.Identifier || 'RG-USR-000';
+        const nextNumber = parseInt(lastIdentifier.split('-')[2]) + 1;
+        const nextIdentifier = `RG-USR-${nextNumber.toString().padStart(3, '0')}`;
+
+        return {
+            code: 200,
+            status: 'success',
+            message: 'Siguiente identificador obtenido correctamente',
+            data: nextIdentifier
+        }
+    } catch (error: unknown) {
+        console.error('Error fetching next identifier:', error);
+        return {
+            code: 500,
+            status: 'error',
+            message: 'Error al obtener el siguiente identificador',
+            data: null
+        }
+    }
+}
+
+export const createUserNocodb = async (userData: IUserDTO): Promise<IAppResponse<IUser>> => {
     try {
         const { data } = await api.post<INocoDBResponse<IUser>>(`${NOCODB_TABLE_NAME}`, {
-            UID: userData.uid,
-            Email: userData.email,
-            Name: userData.displayName || '',
-            Password: userData.password,
-            Role: userData.role,
-            Identifier: userData.identifier,
+            UID: userData.UID,
+            Email: userData.Email,
+            DisplayName: userData.DisplayName || '',
+            Password: userData.Password,
+            Role: userData.Role,
+            Identifier: userData.Identifier,
         })
         return {
             code: 200,
@@ -37,7 +60,7 @@ export const createUserNocodb = async (userData: {
     }
 }
 
-export const updateUserStatusNocodb = async (identifier: string, active: boolean): Promise<IContractsResponse<string>> => {
+export const updateUserStatusNocodb = async (identifier: string, active: boolean): Promise<IAppResponse<string>> => {
     try {
         const user = await readOneUserByIdentifierNocodb(identifier);
         if (!user) {
@@ -79,47 +102,7 @@ export const updateUserStatusNocodb = async (identifier: string, active: boolean
     }
 }
 
-export const getLastIdentifierNocodb = async (): Promise<IContractsResponse<string>> => {
-    try {
-        const {
-            data
-        } = await readManyUsersNocodb({
-            sort: 'Identifier',
-            order: 'desc',
-            limit: 1
-        })
-
-        if (!data || data.length === 1) {
-            return {
-                code: 200,
-                status: 'info',
-                message: 'No hay usuarios en NocoDB',
-                data: 'RGC-0001'
-            }
-        }
-
-        const lastUser = data[0];
-
-        const currentNumber = parseInt(lastUser.Identifier.split('-')[1]);
-        const nextNumber = currentNumber + 1;
-        return {
-            code: 200,
-            status: 'success',
-            message: 'Último identificador obtenido correctamente',
-            data: `RGC-${nextNumber.toString().padStart(4, '0')}`
-        }
-    } catch (error: unknown) {
-        console.error('Error fetching last identifier:', error);
-        return {
-            code: 500,
-            status: 'error',
-            message: 'Error al obtener último identificador',
-            data: 'RGC-0001'
-        }
-    }
-}
-
-export const readOneUserByUIDNocodb = async (uid: string): Promise<IContractsResponse<IUser>> => {
+export const readOneUserByUIDNocodb = async (uid: string): Promise<IAppResponse<IUser>> => {
     try {
         const { data } = await api.get<INocoDBResponse<IUser[]>>(`${NOCODB_TABLE_NAME}`, {
             params: {
@@ -143,7 +126,7 @@ export const readOneUserByUIDNocodb = async (uid: string): Promise<IContractsRes
     }
 }
 
-export const readOneUserByIdentifierNocodb = async (identifier: string): Promise<IContractsResponse<IUser>> => {
+export const readOneUserByIdentifierNocodb = async (identifier: string): Promise<IAppResponse<IUser>> => {
     try {
         const { data } = await api.get<INocoDBResponse<IUser[]>>(`${NOCODB_TABLE_NAME}`, {
             params: {
@@ -177,7 +160,7 @@ export const readManyUsersNocodb = async (params?: {
     sort?: 'Identifier',
     order?: 'asc' | 'desc',
     limit?: number
-}): Promise<IContractsResponse<IUser[]>> => {
+}): Promise<IAppResponse<IUser[]>> => {
     try {
         const queryParams: QueryParams = {
             'fields': '*'

@@ -1,0 +1,1 @@
+export { type ITableState } from './state.interface'

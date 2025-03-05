@@ -1,4 +1,4 @@
-export interface IContractsResponse<T> {
+export interface IAppResponse<T> {
     code: number;
     status: string;
     message: string;

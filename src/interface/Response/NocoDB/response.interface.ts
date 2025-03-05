@@ -6,5 +6,5 @@ export interface INocoDBResponse<T> {
 }
 
 export interface INocoDBResponseId {
-    Id: string;
+    Id: number;
 }
